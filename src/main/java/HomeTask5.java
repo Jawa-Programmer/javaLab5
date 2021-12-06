@@ -1,10 +1,10 @@
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.Month;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class HomeTask5 {
 
@@ -17,7 +17,7 @@ public class HomeTask5 {
         //   How many days did he live?
         {
             System.out.println("---===---");
-            Date born = new Date(1809, Calendar.FEBRUARY, 12), died = new Date(1865, Calendar.APRIL, 15);
+            Date born = new Date(1809, Calendar.FEBRUARY, 12), died = new Date(1855, Calendar.APRIL, 15);
             System.out.println("Линкольн помер в возрасте " + ((died.getTime() - born.getTime()) / 60000 / 60 / 24 / 365) + ".");
             System.out.println("Он прожил " + ((died.getTime() - born.getTime()) / 60000 / 60 / 24) + " дней.");
         }
@@ -29,7 +29,7 @@ public class HomeTask5 {
         {
             System.out.println("---===---");
             cal.set(Calendar.YEAR, 1976);
-            cal.set(Calendar.MONTH, Calendar.FEBRUARY);
+            cal.set(Calendar.MONTH, Calendar.JULY);
             cal.set(Calendar.DAY_OF_MONTH, 19);
             int days = cal.getMaximum(Calendar.DAY_OF_YEAR);
             System.out.println((days == 365 ? "Нет" : "Да") + ", " + days);
@@ -44,7 +44,7 @@ public class HomeTask5 {
         {
             System.out.println("---===---");
             Calendar depart = Calendar.getInstance(), arriv = Calendar.getInstance();
-            depart.set(Calendar.HOUR_OF_DAY, 14);
+            depart.set(Calendar.HOUR_OF_DAY, 13);
             depart.set(Calendar.MINUTE, 45);
             arriv.set(Calendar.HOUR_OF_DAY, 19);
             arriv.set(Calendar.MINUTE, 25);
@@ -62,7 +62,7 @@ public class HomeTask5 {
             cal.set(2021, Calendar.MARCH, 24, 21, 15, 0);
             cal.add(Calendar.MINUTE, 15 + 4 * 60);
             System.out.println("Самолет прилетит в Маями в дату " + cal.getTime());
-            cal.add(Calendar.MINUTE, 12);
+            cal.add(Calendar.MINUTE, 27 + 4 * 60);
             System.out.println("Самолет прилетит в Маями в дату " + cal.getTime());
         }
         // School semester starts the second Tuesday of September of this year.
@@ -70,8 +70,7 @@ public class HomeTask5 {
         //   What is the date?
         {
             System.out.println("---===---");
-            LocalDate date = LocalDate.of(2021, Month.SEPTEMBER, 01);
-            LocalDate start = date.with(TemporalAdjusters.dayOfWeekInMonth(2, DayOfWeek.THURSDAY));
+            LocalDate start = LocalDate.of(2021, Month.SEPTEMBER, 01).with(TemporalAdjusters.dayOfWeekInMonth(2, DayOfWeek.TUESDAY));
             System.out.println("Это будет " + start);
 
             //   School summer vacation starts June 25th
@@ -84,10 +83,9 @@ public class HomeTask5 {
             Calendar end = Calendar.getInstance(), start2 = Calendar.getInstance();
             end.set(2022, Calendar.JUNE, 25);
             start2.set(2021, Calendar.SEPTEMBER, start.getDayOfMonth());
-            long days_total = (end.getTimeInMillis() - start2.getTimeInMillis()) / 1000 / 60 / 60 / 24;
+            long days_total = (end.getTimeInMillis() - start2.getTimeInMillis()) / 1000 / 60 / 60 / 24; // всего дней
             days_total -= days_total * 2 / 7; // убрали выходные
-            days_total -= 10; // убрали 4 недели каникул
-            days_total -= 6; // государственные праздники
+            days_total -= 20; // убрали 4 недели каникул
             System.out.println("В школе будет проведено " + days_total + " дней.");
         }
         // A meeting is schedule for 1:30 PM next Tuesday. If today is Tuesday, assume it is today.
@@ -95,7 +93,7 @@ public class HomeTask5 {
         {
             System.out.println("---===---");
             Calendar calendar = Calendar.getInstance();
-            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY) System.out.println("Встреча сегодня в 13:30.");
+            if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY) System.out.println("Встреча сегодня в 13:30.");
             else System.out.println("Встреча на следующей неделе, во вторник в 13:30.");
         }
 
@@ -104,9 +102,15 @@ public class HomeTask5 {
         //   * Use America/Los_Angeles as the time zone for San Francisco Airport (SFO).
         //   * Use Asia/Calcutta as the time zone for Bangalore's Bengaluru International Airport (BLR)
 
-        final TimeZone BOS = TimeZone.getTimeZone("America/New_York"),
-                SFO = TimeZone.getTimeZone("America/Los_Angeles"),
-                BLR = TimeZone.getTimeZone("Asia/Calcutta");
+        final ZoneId BOS = ZoneId.of("America/New_York"),
+                SFO = ZoneId.of("America/Los_Angeles"),
+                BLR = ZoneId.of("Asia/Calcutta");
+        DateTimeFormatter f = new DateTimeFormatterBuilder()
+                .appendValue(ChronoField.DAY_OF_MONTH, 2).appendLiteral('.')
+                .appendValue(ChronoField.MONTH_OF_YEAR, 2).appendLiteral('.')
+                .appendValue(ChronoField.YEAR, 4).appendLiteral(' ')
+                .appendValue(ChronoField.HOUR_OF_DAY, 2).appendLiteral(':')
+                .appendValue(ChronoField.MINUTE_OF_HOUR, 2).toFormatter();
 
         // Flight 123, San Francisco to  Boston, leaves SFO at 10:30 PM June 13, 2014
         // The flight is 5 hours 30 minutes
@@ -115,34 +119,31 @@ public class HomeTask5 {
         //   What is the local time in San Francisco when the flight arrives?
         {
             System.out.println("---===---");
-            Calendar takeoff = Calendar.getInstance(SFO);
-            takeoff.set(2014, Calendar.JUNE, 13, 22, 30, 00);
-            System.out.println("Время взлета: " + takeoff.getTime());
-            takeoff.add(Calendar.MILLISECOND, BOS.getOffset(takeoff.getTimeInMillis()) - SFO.getOffset(takeoff.getTimeInMillis()));
-            System.out.println("Тем временем в Бостоне: " + takeoff.getTime());
-            takeoff.add(Calendar.HOUR, 5);
-            takeoff.add(Calendar.MINUTE, 30);
-            System.out.println("Время прибытия в Бостон по местному времени: " + takeoff.getTime());
-            takeoff.add(Calendar.MILLISECOND, SFO.getOffset(takeoff.getTimeInMillis()) - BOS.getOffset(takeoff.getTimeInMillis()));
-            System.out.println("Время прибытия в Бостон по SFO: " + takeoff.getTime());
+            LocalDate takeoffDate = LocalDate.of(2014, Month.JUNE, 13);
+            LocalTime takeoffTime = LocalTime.of(22, 30);
+            ZonedDateTime takeoff = ZonedDateTime.of(takeoffDate, takeoffTime, SFO),
+                    takeoffb = takeoff.withZoneSameInstant(BOS);
+            System.out.println("Взлет по Бостону: " + takeoffb.format(f));
+            ZonedDateTime arriveb = takeoffb.plusHours(5).plusMinutes(30), arrive = arriveb.withZoneSameInstant(SFO);
+            System.out.println("Прибытие по Бостону: " + arriveb.format(f));
+            System.out.println("Прибытие по Сан-Франциско: " + arrive.format(f));
         }
 
         // Flight 456, San Francisco to Bangalore, India, leaves SFO at Saturday, 10:30 PM June 28, 2014
         // The flight time is 22 hours
         //   Will the traveler make a meeting in Bangalore Monday at 9 AM local time?
         //   Can the traveler call her husband at a reasonable time when she arrives?
-
         {
             System.out.println("---===---");
-            Calendar takeoff = Calendar.getInstance(SFO);
-            takeoff.set(2014, Calendar.JUNE, 28, 22, 30, 00);
-            System.out.println("Время взлета: " + takeoff.getTime());
-            takeoff.add(Calendar.MILLISECOND, BLR.getOffset(takeoff.getTimeInMillis()) - SFO.getOffset(takeoff.getTimeInMillis()));
-            takeoff.add(Calendar.HOUR, 22);
-            Calendar mondey9am = Calendar.getInstance(BLR);
-            mondey9am.set(2014, Calendar.JUNE, 30, 9, 0, 0);
-            System.out.println(takeoff.before(mondey9am) ? "Да." : "Нет.");
-            System.out.println("Зависит от того, что считать разумным)");
+            LocalDate takeoffDate = LocalDate.of(2014, Month.JUNE, 28);
+            LocalTime takeoffTime = LocalTime.of(22, 30);
+            ZonedDateTime takeoff = ZonedDateTime.of(takeoffDate, takeoffTime, SFO);
+            ZonedDateTime arrive = takeoff.plusHours(22).withZoneSameInstant(BLR);
+            ZonedDateTime meeting = ZonedDateTime.of(LocalDate.of(2014, Month.JUNE, 30), LocalTime.of(9, 0), BLR);
+            System.out.println("Прибытие в Бангалор по местному времени: " + arrive.format(f) +
+                    "; Может ли он назначить встречу на 9 утра понедельника? Конечно "
+                    + (meeting.isBefore(arrive) || meeting.isEqual(arrive) ? "может!" : "нет, не может!"));
+            System.out.println("Зависит от того, что считать нормой)");
         }
 
         // Flight 123, San Francisco to Boston, leaves SFO at 10:30 PM Saturday, November 1st, 2014
@@ -151,16 +152,12 @@ public class HomeTask5 {
         //   What happened?
         {
             System.out.println("---===---");
-            Calendar takeoff = Calendar.getInstance(SFO);
-            takeoff.set(2014, Calendar.JUNE, 13, 22, 30, 00);
-            System.out.println("Время взлета: " + takeoff.getTime());
-            takeoff.add(Calendar.HOUR, 5);
-            takeoff.add(Calendar.MINUTE, 30);
-            takeoff.add(Calendar.MILLISECOND, BOS.getOffset(takeoff.getTimeInMillis()) - SFO.getOffset(takeoff.getTimeInMillis()));
-            System.out.println("Прибытие в Бостон по местному времени: " + takeoff.getTime());
-            System.out.println("Самолет приземлился...");
-            System.out.println("...");
-            System.out.println("Ладно, если серьезно, то переход на зимнее время))");
+            LocalDate takeoffDate = LocalDate.of(2014, Month.NOVEMBER, 1);
+            LocalTime takeoffTime = LocalTime.of(22, 30);
+            ZonedDateTime takeoff = ZonedDateTime.of(takeoffDate, takeoffTime, SFO);
+            ZonedDateTime arrive = takeoff.plusHours(5).plusMinutes(30).withZoneSameInstant(BOS);
+            System.out.println("Прибытие в Бостон по местному времени: " + arrive.format(f));
+            System.out.println("Что произошло? Самолет перелетел из Сан-Франциско в Бостон.\nА если серьезно, то перевод на зимнее время))");
         }
     }
 
